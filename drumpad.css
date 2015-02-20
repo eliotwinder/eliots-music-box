@@ -1,0 +1,27 @@
+.pad {
+	width: 150px;
+	background-color: hsla(0,0%,67%,1.00);
+	height: 150px;
+	border-style: solid;
+	border-color: hsla(0,0%,0%,1.00);
+	display: inline-block;
+}
+#sp {
+	width: 320px;
+	display: inline-block;
+}
+.volume {
+	display: inline-block;
+	vertical-align: top;
+}
+#cp {
+	display: inline-block;
+	vertical-align: top;
+	width: 226px;
+}
+.key {
+	display: inline-block;
+	width: 35px;
+	border-style: solid;
+	height: 164px;
+}
