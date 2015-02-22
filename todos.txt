@@ -1,0 +1,5 @@
+drag from key to key
+add two more oscillators w/ choice of wave
+add master volume control and individual oscillator control
+add reverb to main channel
+add high pass and low pass filter

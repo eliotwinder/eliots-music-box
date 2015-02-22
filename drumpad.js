@@ -69,6 +69,7 @@ $(function(){
 
 	//add oscillators to the keyboard
 	var current = 0;
+
 	$('.key').each(function() {
 		this.frequency = calculateFrequency(current, 87.31);
 		$(this).data("frequency", current);
@@ -80,25 +81,30 @@ $(function(){
 	var mouseDown = 0;
 	document.body.onmousedown = function() { 
 		mouseDown++;
+		console.log(mouseDown);
 	}
 	
 	document.body.onmouseup = function() {
 		mouseDown--;
+		console.log(mouseDown);
 	}
 
 
 	//stop and play the synth
 	$('.key').on('mousedown', function(){
+			$(this).addClass('pressed')
 			this.playPiano();
 	});
 
 	$('.key').on('mouseover', function(){
 		if (mouseDown == 1) {
+			$(this).addClass('pressed')
 			this.playPiano();
 		}
 	});
 
 	$('.key').on('mouseup mouseout', function(){
+		$(this).removeClass('pressed')
 		this.stopPiano();
 	});
 
