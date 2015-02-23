@@ -39,20 +39,24 @@ function addAudioProperties(object) {
 
 function addSynthProperties(object){
 	object.name =object.id;
-	var oscillator;
+	var osc1;
 	
 	object.playPiano = function (){
-		oscillator = context.createOscillator();
-	  	gainNode = context.createGain();
-	  	oscillator.type = $("#waveform option:selected").text();
-		gainNode.connect(context.destination);
-		oscillator.connect(gainNode);
-		oscillator.frequency.value = object.frequency;
-		oscillator.start();
-	}
+		console.log($('#onoff1').prop("checked"));
+		if($('#onoff1').prop("checked") == true) {
+			osc1 = context.createOscillator();
+		  	gainNode = context.createGain();
+		  	osc1.type = $('#waveform option:selected').text();
+			gainNode.connect(context.destination);
+			gainNode.gain.value = document.querySelector('#osc1gain').value;
+			osc1.connect(gainNode);
+			osc1.frequency.value = object.frequency;
+			osc1.start();
+		}
+	}	
 	object.stopPiano = function () {
-		if (oscillator) {
-			oscillator.stop();
+		if (osc1) {
+			osc1.stop();
 		};		
 	}
 }
@@ -81,31 +85,35 @@ $(function(){
 	var mouseDown = 0;
 	document.body.onmousedown = function() { 
 		mouseDown++;
-		console.log(mouseDown);
 	}
 	
 	document.body.onmouseup = function() {
 		mouseDown--;
-		console.log(mouseDown);
 	}
 
 
 	//stop and play the synth
 	$('.key').on('mousedown', function(){
-			$(this).addClass('pressed')
+			if ( $(this).is('span') ) 	
+				$(this).addClass('pressedblack');
+			else
+				$(this).addClass('pressedwhite');
 			this.playPiano();
 	});
 
 	$('.key').on('mouseover', function(){
 		if (mouseDown == 1) {
-			$(this).addClass('pressed')
+			if ( $(this).is('span') ) 	
+				$(this).addClass('pressedblack');
+			else
+				$(this).addClass('pressedwhite');
 			this.playPiano();
 		}
 	});
 
 	$('.key').on('mouseup mouseout', function(){
-		$(this).removeClass('pressed')
+		$(this).removeClass('pressedwhite pressedblack')
 		this.stopPiano();
 	});
-
 });
+

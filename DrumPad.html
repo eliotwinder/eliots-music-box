@@ -43,20 +43,30 @@
             <li><div class="anchor key"></div></li>
 		</ul>
     </div>
-    <select id='waveform'>
-      <option value="sine">sine</option>
-      <option value="triangle">triangle</option>
-      <option value="sawtooth">sawtooth</option>
-      <option value="square">square</option>
-    </select>
-	<br>
     <br>
+    <div id='synthcontrolpanelwrapper'>
+      <div id='osc1'>
+        <h2>Oscillator 1</h2>
+        Osc on/off:<input type='checkbox' id='onoff1'></br>
+        Volume:<input id='osc1gain' type="range" min="0" max="5" step="0.1" value="3" data-gain="gain" name="volume1"><br>
+        Wave type: <select name='waveform'>
+          <option value="sine">sine</option>
+          <option value="triangle">triangle</option>
+          <option value="sawtooth">sawtooth</option>
+          <option value="square">square</option>
+        </select>
+      </div>
+    </div>
+	  <br>
+    <br>
+
+    <!--drum machine-->
     <section id="sp">
 	    <div class="pad" id="pad1" data-sound="audio/A3.wav"></div>
 	    <div class="pad" id="pad2" data-sound="audio/C3.wav"></div>
 	    <div class="pad" id="pad3" data-sound="audio/F2.wav"></div>
 	    <div class="pad" id="pad4" data-sound="audio/F3.wav"></div>
-	</section>
+    </section>
     <section id='cp'>
       <div class="volume" data-pad="pad1">
         <h3>top left pad</h3>
