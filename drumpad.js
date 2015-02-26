@@ -74,10 +74,10 @@ $(function(){
 	var current = 0;
 	
 	//array with charcodes for the computer keys in order of piano
-	var keyboardStrokes = ['a','w','s','e'];
+	var keyboardStrokes = ['a','w','s','e','d','f','t','g','y','h','u','j','k','o','l'];
 	var keyToCharCode = [];
 
-	for (i =0; i < keyboardStrokes.length; i++) {
+	for (var i = 0; i < keyboardStrokes.length; i++) {
 		keyToCharCode.push(keyboardStrokes[i].charCodeAt(0)-32);
 	}
 
@@ -91,13 +91,21 @@ $(function(){
 		current++;
 	});
 
+
 	//keyboard control
+	var keysThatAreDown = {}; //object that holds keys that are pressed to avoid repetitive keypress
 	$(document).on( "keydown", function( event ) {
-	  e = event;
-	  console.log(e.which);
-	  $("#keynumber"+e.which)[0].playPiano();
+		  if (!keysThatAreDown[event.which]) {
+		  	$("#keynumber"+event.which)[0].playPiano();
+		  	keysThatAreDown[event.which] = true;
+		  }
 	});
 	
+	$(document).on( "keyup", function( event ) {  
+		  e = event;
+		  $("#keynumber"+e.which)[0].stopPiano();
+		  keysThatAreDown[e.which] = false;
+	});
 
 	//track if mouse is down
 	var mouseDown = 0;
