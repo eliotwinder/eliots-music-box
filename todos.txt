@@ -1,8 +1,12 @@
 fixed 2/22/15 - drag from key to key
+add keyboard touch: qwerty-hancock.js
+add touchscreen
 mouseDown counter doesn't decrease if you mouseup outside of the browser window
 fix clicking at start and end of note
 add individual oscillator volume control
 add two more oscillators w/ choice of wave
+fixed 2/22/15 - add volume to oscillator
 add master volume control 
 add reverb to main channel
 add high pass and low pass filters
+make the control panel pretty
