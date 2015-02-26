@@ -38,11 +38,10 @@ function addAudioProperties(object) {
 }
 
 function addSynthProperties(object){
-	object.name =object.id;
+	
 	var osc1;
 	
 	object.playPiano = function (){
-		console.log($('#onoff1').prop("checked"));
 		if($('#onoff1').prop("checked") == true) {
 			osc1 = context.createOscillator();
 		  	gainNode = context.createGain();
@@ -73,13 +72,32 @@ $(function(){
 
 	//add oscillators to the keyboard
 	var current = 0;
+	
+	//array with charcodes for the computer keys in order of piano
+	var keyboardStrokes = ['a','w','s','e'];
+	var keyToCharCode = [];
 
+	for (i =0; i < keyboardStrokes.length; i++) {
+		keyToCharCode.push(keyboardStrokes[i].charCodeAt(0)-32);
+	}
+
+	console.log(keyToCharCode);
+	
 	$('.key').each(function() {
 		this.frequency = calculateFrequency(current, 87.31);
 		$(this).data("frequency", current);
 		addSynthProperties(this);
+		$(this).attr('id', 'keynumber'+keyToCharCode[current]);
 		current++;
 	});
+
+	//keyboard control
+	$(document).on( "keydown", function( event ) {
+	  e = event;
+	  console.log(e.which);
+	  $("#keynumber"+e.which)[0].playPiano();
+	});
+	
 
 	//track if mouse is down
 	var mouseDown = 0;
@@ -90,7 +108,6 @@ $(function(){
 	document.body.onmouseup = function() {
 		mouseDown--;
 	}
-
 
 	//stop and play the synth
 	$('.key').on('mousedown', function(){
