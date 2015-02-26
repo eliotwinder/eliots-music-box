@@ -74,19 +74,28 @@ $(function(){
 	var current = 0;
 	
 	//array with charcodes for the computer keys in order of piano
-	var keyboardStrokes = [65,87,83,69]
+	var keyboardStrokes = ['a','w','s','e'];
+	var keyToCharCode = [];
+
+	for (i =0; i < keyboardStrokes.length; i++) {
+		keyToCharCode.push(keyboardStrokes[i].charCodeAt(0)-32);
+	}
+
+	console.log(keyToCharCode);
+	
 	$('.key').each(function() {
 		this.frequency = calculateFrequency(current, 87.31);
 		$(this).data("frequency", current);
 		addSynthProperties(this);
-		$(this).attr('id', 'keynumber'+keyboardStrokes[current]);
+		$(this).attr('id', 'keynumber'+keyToCharCode[current]);
 		current++;
 	});
 
 	//keyboard control
-	$(document).on( "keypress", function( event ) {
-	  console.log($("#keynumber65"));
-	  $("#keynumber65").playPiano();
+	$(document).on( "keydown", function( event ) {
+	  e = event;
+	  console.log(e.which);
+	  $("#keynumber"+e.which)[0].playPiano();
 	});
 	
 
