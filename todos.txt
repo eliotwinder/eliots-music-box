@@ -1,5 +1,6 @@
 fixed 2/22/15 - drag from key to key
-add keyboard touch: qwerty-hancock.js
+fixed 2/26/15 - add keyboard touch: qwerty-hancock.js
+add formatting on keyboard touch
 add touchscreen
 mouseDown counter doesn't decrease if you mouseup outside of the browser window
 fix clicking at start and end of note
