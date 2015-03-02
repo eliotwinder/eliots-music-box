@@ -41,26 +41,64 @@ function addAudioProperties(object) {
 function addSynthProperties(object){
 	
 	var osc1;
-	var gainNode;
-	
+	var osc2;
+	var osc3;
+	var gainNode1;
+	var gainNode2;
+	var gainNode3;
+
 	object.playPiano = function (){
 		if($('#onoff1').prop("checked") == true) {
 			osc1 = context.createOscillator();
-		  	gainNode = context.createGain();
-		  	osc1.type = $('#waveform option:selected').text();
-			gainNode.connect(context.destination);
-			gainNode.gain.setValueAtTime(0,context.currentTime);
-			gainNode.gain.linearRampToValueAtTime( document.querySelector('#osc1gain').value, context.currentTime+0.01);
-			osc1.connect(gainNode);
+		  	gainNode1 = context.createGain();
+		  	osc1.type = $('#waveform1 option:selected').text();
+			gainNode1.connect(context.destination);
+			gainNode1.gain.setValueAtTime(0,context.currentTime);
+			gainNode1.gain.linearRampToValueAtTime( document.querySelector('#osc1gain').value, context.currentTime+0.01);
+			osc1.connect(gainNode1);
 			osc1.frequency.value = object.frequency;
 			osc1.start(0);
 		}
-	}	
+
+		if($('#onoff2').prop("checked") == true) {
+			osc2 = context.createOscillator();
+		  	gainNode2 = context.createGain();
+		  	osc2.type = $('#waveform2 option:selected').text();
+			gainNode2.connect(context.destination);
+			gainNode2.gain.setValueAtTime(0,context.currentTime);
+			gainNode2.gain.linearRampToValueAtTime( document.querySelector('#osc2gain').value, context.currentTime+0.01);
+			osc2.connect(gainNode2);
+			osc2.frequency.value = object.frequency;
+			osc2.start(0);
+		}
+
+		if($('#onoff3').prop("checked") == true) {
+			osc3 = context.createOscillator();
+		  	gainNode3 = context.createGain();
+		  	osc3.type = $('#waveform3 option:selected').text();
+			gainNode3.connect(context.destination);
+			gainNode3.gain.setValueAtTime(0,context.currentTime);
+			gainNode3.gain.linearRampToValueAtTime( document.querySelector('#osc3gain').value, context.currentTime+0.01);
+			osc3.connect(gainNode3);
+			osc3.frequency.value = object.frequency;
+			osc3.start(0);
+		}
+	}		
 
 	object.stopPiano = function () {
 		if (osc1) {
-			gainNode.gain.setValueAtTime(gainNode.gain.value, context.currentTime);
-			gainNode.gain.linearRampToValueAtTime( 0, context.currentTime+0.01);
+			gainNode1.gain.setValueAtTime(gainNode1.gain.value, context.currentTime);
+			gainNode1.gain.linearRampToValueAtTime( 0, context.currentTime+0.01);
+		};
+
+		if (osc2) {
+			gainNode2.gain.setValueAtTime(gainNode2.gain.value, context.currentTime);
+			gainNode2.gain.linearRampToValueAtTime( 0, context.currentTime+0.01);
+		};
+
+		if (osc3) {
+			gainNode3.gain.setValueAtTime(gainNode3.gain.value, context.currentTime);
+			gainNode3.gain.linearRampToValueAtTime( 0, context.currentTime+0.01);
 		};
 	}		
 }
