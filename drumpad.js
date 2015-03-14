@@ -39,6 +39,9 @@ function addAudioProperties(object) {
 
 }
 
+//variables for local storage
+	var seshInProgress = true;
+
 //add synth to the keyboard
 function addSynthProperties(object){
 	//object to hold active oscillators and gain
@@ -106,6 +109,29 @@ function addSynthProperties(object){
 	}
 }
 
+//check if local storage is available
+function supportsLocalStorage() {
+  try {
+    return 'localStorage' in window && window['localStorage'] !== null;
+  } catch (e) {
+    return false;
+  }
+}
+
+//save function
+function saveState() {
+    if (!supportsLocalStorage()) { return false; }
+    localStorage["synth.sesh.in.progress"] = seshInProgress;
+    localStorage["masteroctave"] = $('#masteroctave').val();
+    return true;
+}
+
+//load function
+function loadState() {
+	if (!supportsLocalStorage()) { return false; }
+	document.getElementById("masteroctave").value = parseInt(localStorage["masteroctave"]);
+}
+
 $(function(){
 	//add audio properties to drum pad
 	$('#sp div').each(function() {
@@ -115,9 +141,6 @@ $(function(){
 	$('#sp div').click(function() {
 		this.play();
 	});
-
-	//add oscillators to the keyboard
-	
 	
 	//array with charcodes for the computer keys in order of piano
 	var keyboardStrokes = ['a','w','s','e','d','f','t','g','y','h','u','j','k','o','l','p'];
@@ -137,6 +160,7 @@ $(function(){
 		current++;
 	});
 
+	//event listener for change in octave recalculates frequencies
 	$('#masteroctave').on('input', function() {
 		var octave = $(this).val();
 		var currentCounter = $(this).val()*12;
@@ -145,6 +169,7 @@ $(function(){
 			$(this).data('frequency', currentCounter);
 			addSynthProperties(this);
 			currentCounter++;
+			saveState();
 		});
 	});
 
@@ -223,5 +248,6 @@ $(function(){
 		$(this).removeClass('pressedwhite pressedblack')
 		this.stopPiano();
 	});
+	loadState();
 });
 
