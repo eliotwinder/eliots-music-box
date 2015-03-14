@@ -42,11 +42,17 @@ function addAudioProperties(object) {
 
 //add synth to the keyboard
 function addSynthProperties(object){
-	//method to playpiano - includes check to see if each osc is turned on (has a checked box)
-	
+	//object to hold active oscillators and gain
 	var note = {};
+	
+	var merger = context.createChannelMerger(12);
+	var masterGain = context.createGain();
+	merger.connect(masterGain);
+	masterGain.connect(context.destination);
 
+	//method to playpiano - includes check to see if each osc is turned on (has a checked box)
 	object.playPiano = function (){
+		var mastervolume = $('#mastercontrol .gain')
 		$('.osc').each( function(){
 			var el = $(this);
 			var onoff = el.find('.onoff');
@@ -62,16 +68,19 @@ function addSynthProperties(object){
 			  	};
 
 			  	osc1.type = waveform.text();
-				gainNode1.connect(context.destination);
+				gainNode1.connect(merger);
 				osc1.connect(gainNode1);
 				//set volume to zero to add attack
 				gainNode1.gain.setValueAtTime(0,context.currentTime);
 				//attack envelope - 1st arg is target volume for top of attack (from oscillator, 2nd arg is time 
-				gainNode1.gain.linearRampToValueAtTime( gain.val(), context.currentTime+0.03);
+				gainNode1.gain.linearRampToValueAtTime( gain.val(), context.currentTime+0.05);
 				osc1.frequency.value = object.frequency;
 				osc1.start(0);
 			}
 		});
+		masterGain.gain.setValueAtTime(0,context.currentTime);
+		masterGain.gain.linearRampToValueAtTime( mastervolume.val(), context.currentTime+1);
+
 	}		
 
 	object.stopPiano = function () {
@@ -81,10 +90,12 @@ function addSynthProperties(object){
 				var gainNode = note[$(this).data('oscnum')].gainNode;
 				gainNode.gain.cancelScheduledValues(context.currentTime);
 				gainNode.gain.setValueAtTime(gainNode.gain.value, context.currentTime);
-				gainNode.gain.linearRampToValueAtTime( 0, context.currentTime+0.03);
+				gainNode.gain.linearRampToValueAtTime( 0, context.currentTime+.05);
 				
 			}
 		});
+		masterGain.gain.cancelScheduledValues(context.currentTime);
+		masterGain.gain.linearRampToValueAtTime(0, context.currentTime+5);
 	}
 }
 
