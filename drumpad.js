@@ -45,8 +45,7 @@ function addSynthProperties(object){
 	var note = {};
 	
 	//method to playpiano - includes check to see if each osc is turned on (has a checked box)
-	object.playPiano = function (){
-		 
+	object.playPiano = function (){ 
 		$('.osc').each( function(){
 			var el = $(this);
 			var onoff = el.find('.onoff');
@@ -55,8 +54,7 @@ function addSynthProperties(object){
 			var attack = el.find('.attack');
 			var mastervolume = $('#mastercontrol .gain');
 			var masterAttack = $('#mastercontrol .attack');
-
-
+			console.log($('#mastercontrol .attack'));
 			if(onoff.prop('checked') == true) {
 				this.counter = 0;
 				var osc1 = context.createOscillator();
@@ -69,7 +67,7 @@ function addSynthProperties(object){
 			  	note[$(this).data('oscnum')] = {
 			  		osc: osc1,
 			  		gainNode: gainNode1,
-			  		masterGain: gainNodeMaster,
+			  		masterGain: gainNodeMaster
 			  	};
 
 			  	osc1.type = waveform.text();
@@ -90,16 +88,20 @@ function addSynthProperties(object){
 
 	object.stopPiano = function () {
 		$('.osc').each(function() {
+			var el = $(this);
+			var release = el.find('.release');
+			var masterRelease = $('#mastercontrol .release');
 			if(note[$(this).data('oscnum')]){
 				var osc = note[$(this).data('oscnum')].osc;	
 				var gainNode = note[$(this).data('oscnum')].gainNode;
 				var masterGain = note[$(this).data('oscnum')].masterGain;
 				gainNode.gain.cancelScheduledValues(context.currentTime);
 				gainNode.gain.setValueAtTime(gainNode.gain.value, context.currentTime);
-				gainNode.gain.linearRampToValueAtTime( 0, context.currentTime+.05);
+				gainNode.gain.linearRampToValueAtTime( 0, context.currentTime + parseFloat(release.val()));
 				masterGain.gain.cancelScheduledValues(context.currentTime);
 				masterGain.gain.setValueAtTime(masterGain.gain.value, context.currentTime);
-				masterGain.gain.linearRampToValueAtTime(0, context.currentTime+.05);
+				console.log(typeof parseFloat(masterRelease.val()));
+				masterGain.gain.linearRampToValueAtTime(0, context.currentTime+parseFloat(masterRelease.val()));
 			}
 		});
 		
