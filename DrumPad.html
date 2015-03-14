@@ -43,18 +43,21 @@
     <br>
     <div id='synthcontrolpanelwrapper'>
       <div id='mastercontrol'>
-          Volume:<input class='gain' type="range" min="0" max="5" step="0.1" value=".5" data-gain="gain"><br>
+        <h2>Master</h2>
+        Volume:<input class='gain' type="range" min="0" max="5" step="0.1" value=".5" data-gain="gain"><br>
+        Attack: <input class='attack' type="range" min=".03" max="3" step="0.01" value=".5"><br>
       </div>
       <div class='osc' data-oscnum='1'>
         <h2>Oscillator 1</h2>
         Osc on/off:<input type='checkbox' class='onoff' checked='checked'></br>
-        Volume:<input class='gain' type="range" min="0" max="5" step="0.1" value=".5" data-gain="gain"><br>
+        Volume:<input class='gain' type="range" min="" max="5" step="0.1" value=".5" data-gain="gain"><br>
         Wave type: <select class='waveform'>
           <option value="sine">sine</option>
           <option value="triangle">triangle</option>
           <option value="sawtooth">sawtooth</option>
           <option value="square">square</option>
-        </select>
+        </select><br>
+        Attack: <input class='attack' type="range" min=".03" max="3" step="0.01" value=".5"><br>
       </div>
        <div class='osc' data-oscnum='2'>
         <h2>Oscillator 2</h2>
@@ -65,7 +68,8 @@
           <option value="triangle">triangle</option>
           <option value="sawtooth">sawtooth</option>
           <option value="square">square</option>
-        </select>
+        </select><br>
+        Attack: <input class='attack' type="range" min=".03" max="3" step="0.01" value=".5"><br>
       </div>
        <div class='osc' data-oscnum='3'>
         <h2>Oscillator 3</h2>
@@ -76,7 +80,8 @@
           <option value="triangle">triangle</option>
           <option value="sawtooth">sawtooth</option>
           <option value="square">square</option>
-        </select>
+        </select><br>
+        Attack: <input class='attack' type="range" min=".03" max="3" step="0.01" value=".5"><br>
       </div>
     </div>
 	  <br>
