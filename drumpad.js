@@ -3,13 +3,13 @@ var context = new window.AudioContext();
 var frequencies = [16.35, 17.32, 18.35, 19.45, 20.6, 21.83, 23.12, 24.5, 25.96, 27.5, 29.14, 30.87, 32.7, 34.65, 36.71, 38.89, 41.2, 43.65, 46.25, 49, 51.91, 55, 58.27, 61.74, 65.41, 69.3, 73.42, 77.78, 82.41, 87.31, 92.5, 98, 103.83, 110, 116.54, 123.47, 130.81, 138.59, 146.83, 155.56, 164.81, 174.61, 185, 196, 207.65, 220, 233.08, 246.94, 261.63, 277.18, 293.66, 311.13, 329.63, 349.23, 369.99, 392, 415.3, 440, 466.16, 493.88, 523.25, 554.37, 587.33, 622.25, 659.25, 698.46, 739.99, 783.99, 830.61, 880, 932.33, 987.77, 1046.5, 1108.73, 1174.66, 1244.51, 1318.51, 1396.91, 1479.98, 1567.98, 1661.22, 1760, 1864.66, 1975.53, 2093, 2217.46, 2349.32, 2489.02, 2637.02, 2793.83, 2959.96, 3135.96, 3322.44, 3520, 3729.31, 3951.07, 4186.01, 4434.92, 4698.63, 4978.03, 5274.04, 5587.65, 5919.91, 6271.93, 6644.88, 7040, 7458.62, 7902.13];
 
 
-//calcualte the frequency of a note based on a=440hz; pitch is halfsteps away from a4
+//calculate the frequency of a note based on a=440hz; pitch is halfsteps away from a4
 function calculateFrequency(pitch, start){
 	var noteFrequency = start*Math.pow(Math.pow(2,1/12),pitch);
   	return noteFrequency;
 }
 
-
+//create buffer for drum pad
 function loadAudio(object, url) {
 	var request =new XMLHttpRequest;
 	request.open('GET',url, true);
@@ -23,6 +23,8 @@ function loadAudio(object, url) {
 	request.send();
 }
 
+
+//add properties to the drumpad
 function addAudioProperties(object) {
 	object.name = object.id;
 	object.source = $(object).data('sound');
@@ -38,69 +40,52 @@ function addAudioProperties(object) {
 
 }
 
+//add synth to the keyboard
 function addSynthProperties(object){
+	//method to playpiano - includes check to see if each osc is turned on (has a checked box)
 	
-	var osc1;
-	var osc2;
-	var osc3;
-	var gainNode1;
-	var gainNode2;
-	var gainNode3;
+	var note = {};
 
 	object.playPiano = function (){
-		if($('#onoff1').prop("checked") == true) {
-			osc1 = context.createOscillator();
-		  	gainNode1 = context.createGain();
-		  	osc1.type = $('#waveform1 option:selected').text();
-			gainNode1.connect(context.destination);
-			gainNode1.gain.setValueAtTime(0,context.currentTime);
-			gainNode1.gain.linearRampToValueAtTime( document.querySelector('#osc1gain').value, context.currentTime+0.01);
-			osc1.connect(gainNode1);
-			osc1.frequency.value = object.frequency;
-			osc1.start(0);
-		}
+		$('.osc').each( function(){
+			var el = $(this);
+			var onoff = el.find('.onoff');
+			var waveform = el.find('.waveform option:selected');
+			var gain = el.find('.gain');
 
-		if($('#onoff2').prop("checked") == true) {
-			osc2 = context.createOscillator();
-		  	gainNode2 = context.createGain();
-		  	osc2.type = $('#waveform2 option:selected').text();
-			gainNode2.connect(context.destination);
-			gainNode2.gain.setValueAtTime(0,context.currentTime);
-			gainNode2.gain.linearRampToValueAtTime( document.querySelector('#osc2gain').value, context.currentTime+0.01);
-			osc2.connect(gainNode2);
-			osc2.frequency.value = object.frequency;
-			osc2.start(0);
-		}
+			if(onoff.prop("checked") == true) {
+				var osc1 = context.createOscillator();
+			  	var gainNode1 = context.createGain();
+			  	note[$(this).data('oscnum')] = {
+			  		osc: osc1,
+			  		gainNode: gainNode1
+			  	};
 
-		if($('#onoff3').prop("checked") == true) {
-			osc3 = context.createOscillator();
-		  	gainNode3 = context.createGain();
-		  	osc3.type = $('#waveform3 option:selected').text();
-			gainNode3.connect(context.destination);
-			gainNode3.gain.setValueAtTime(0,context.currentTime);
-			gainNode3.gain.linearRampToValueAtTime( document.querySelector('#osc3gain').value, context.currentTime+0.01);
-			osc3.connect(gainNode3);
-			osc3.frequency.value = object.frequency;
-			osc3.start(0);
-		}
+			  	osc1.type = waveform.text();
+				gainNode1.connect(context.destination);
+				osc1.connect(gainNode1);
+				//set volume to zero to add attack
+				gainNode1.gain.setValueAtTime(0,context.currentTime);
+				//attack envelope - 1st arg is target volume for top of attack (from oscillator, 2nd arg is time 
+				gainNode1.gain.linearRampToValueAtTime( gain.val(), context.currentTime+0.03);
+				osc1.frequency.value = object.frequency;
+				osc1.start(0);
+			}
+		});
 	}		
 
 	object.stopPiano = function () {
-		if (osc1) {
-			gainNode1.gain.setValueAtTime(gainNode1.gain.value, context.currentTime);
-			gainNode1.gain.linearRampToValueAtTime( 0, context.currentTime+0.01);
-		};
-
-		if (osc2) {
-			gainNode2.gain.setValueAtTime(gainNode2.gain.value, context.currentTime);
-			gainNode2.gain.linearRampToValueAtTime( 0, context.currentTime+0.01);
-		};
-
-		if (osc3) {
-			gainNode3.gain.setValueAtTime(gainNode3.gain.value, context.currentTime);
-			gainNode3.gain.linearRampToValueAtTime( 0, context.currentTime+0.01);
-		};
-	}		
+		$('.osc').each(function() {
+			if(note[$(this).data('oscnum')]){
+				var osc = note[$(this).data('oscnum')].osc;	
+				var gainNode = note[$(this).data('oscnum')].gainNode;
+				gainNode.gain.cancelScheduledValues(context.currentTime);
+				gainNode.gain.setValueAtTime(gainNode.gain.value, context.currentTime);
+				gainNode.gain.linearRampToValueAtTime( 0, context.currentTime+0.03);
+				
+			}
+		});
+	}
 }
 
 $(function(){

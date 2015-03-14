@@ -2,6 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, user-scalable=no">
 <title>BoomBap</title>
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
 <script type="text/javascript" src="drumpad.js"></script>
@@ -41,33 +42,33 @@
     </div>
     <br>
     <div id='synthcontrolpanelwrapper'>
-      <div id='osc1'>
+      <div class='osc' data-oscnum='1'>
         <h2>Oscillator 1</h2>
-        Osc on/off:<input type='checkbox' id='onoff1' checked='checked'></br>
-        Volume:<input id='osc1gain' type="range" min="0" max="1" step="0.1" value=".5" data-gain="gain"><br>
-        Wave type: <select id='waveform1'>
+        Osc on/off:<input type='checkbox' class='onoff' checked='checked'></br>
+        Volume:<input class='gain' type="range" min="0" max="5" step="0.1" value=".5" data-gain="gain"><br>
+        Wave type: <select class='waveform'>
           <option value="sine">sine</option>
           <option value="triangle">triangle</option>
           <option value="sawtooth">sawtooth</option>
           <option value="square">square</option>
         </select>
       </div>
-      <div id='osc2'>
+       <div class='osc' data-oscnum='2'>
         <h2>Oscillator 2</h2>
-        Osc on/off:<input type='checkbox' id='onoff2' checked='checked'></br>
-        Volume:<input id='osc2gain' type="range" min="0" max="1" step="0.1" value=".5" data-gain="gain"><br>
-        Wave type: <select id='waveform2'>
+        Osc on/off:<input type='checkbox' class='onoff' checked='checked'></br>
+        Volume:<input class='gain' type="range" min="0" max="5" step="0.1" value=".5" data-gain="gain"><br>
+        Wave type: <select class='waveform'>
           <option value="sine">sine</option>
           <option value="triangle">triangle</option>
           <option value="sawtooth">sawtooth</option>
           <option value="square">square</option>
         </select>
       </div>
-      <div id='osc3'>
+       <div class='osc' data-oscnum='3'>
         <h2>Oscillator 3</h2>
-        Osc on/off:<input type='checkbox' id='onoff3' checked='checked'></br>
-        Volume:<input id='osc3gain' type="range" min="0" max="1" step="0.1" value=".5" data-gain="gain"><br>
-        Wave type: <select id='waveform3'>
+        Osc on/off:<input type='checkbox' class='onoff' checked='checked'></br>
+        Volume:<input class='gain' type="range" min="0" max="5" step="0.1" value=".5" data-gain="gain"><br>
+        Wave type: <select class='waveform'>
           <option value="sine">sine</option>
           <option value="triangle">triangle</option>
           <option value="sawtooth">sawtooth</option>
