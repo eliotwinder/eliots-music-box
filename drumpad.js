@@ -123,10 +123,10 @@ function saveState() {
     if (!supportsLocalStorage()) { return false; }
     localStorage["synth.sesh.in.progress"] = seshInProgress;
     localStorage["masteroctave"] = $('#masteroctave').val();
-    console.log($('input select'));
-    $('input select').each(function(){
-    	console.log(localStorage);
+    console.log($('input'));
+    $(':input').each(function(){
     	localStorage[$(this).attr('identifier')] = $(this).val();
+    	console.log(localStorage);
     });
     
     return true;
@@ -148,7 +148,7 @@ function createOscControlPanels(number) {
 		el.show();
 		el.attr('oscnum', i);
 		el.find('input, select').each(function() {
-			$(this).attr('identifier', $(this).attr('class')+el.attr('oscnum'));
+			$(this).data('identifier', $(this).data('identifier') + $(this).parent().attr('oscnum'));
 		});
 		el.find('h2').text('Oscillator ' + (i + 1));
 		oscControlPanelWrapper.append(el);
