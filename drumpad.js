@@ -65,19 +65,19 @@ function addSynthProperties(object){
 			  	//pseudo master gain node: this gain node will be the same in all oscillators, mimicking a master channel, but allows us to start a new note
 			  	var gainNodeMaster = context.createGain();
 			  	gainNodeMaster.connect(context.destination);
-
-			  	note[$(this).data('oscnum')] = {
+			  	
+			  	note[$(this).attr('oscnum')] = {
 			  		osc: osc1,
 			  		gainNode: gainNode1,
 			  		masterGain: gainNodeMaster
 			  	};
-
+			  	
 			  	osc1.type = waveform.text();
 			  	gainNode1.connect(gainNodeMaster);
 			  	osc1.connect(gainNode1);
 				//set volume to zero to add attack
 				gainNode1.gain.setValueAtTime(0,context.currentTime);
-				//attack envelope - 1st arg is target volume for top of attack (from oscillator, 2nd arg is time 
+				//attack envelope - 1st arg is target volume for top of attack (from oscillator), 2nd arg is time 
 					gainNode1.gain.linearRampToValueAtTime( 1, context.currentTime + parseFloat(attack.val()));
 				//attack for gainNodeMaster
 				gainNodeMaster.gain.setValueAtTime(0,context.currentTime);
@@ -93,10 +93,10 @@ function addSynthProperties(object){
 			var el = $(this);
 			var release = el.find('.release');
 			var masterRelease = $('#mastercontrol .release');
-			if(note[$(this).data('oscnum')]){
-				var osc = note[$(this).data('oscnum')].osc;	
-				var gainNode = note[$(this).data('oscnum')].gainNode;
-				var masterGain = note[$(this).data('oscnum')].masterGain;
+			if(note[$(this).attr('oscnum')]){
+				var osc = note[$(this).attr('oscnum')].osc;	
+				var gainNode = note[$(this).attr('oscnum')].gainNode;
+				var masterGain = note[$(this).attr('oscnum')].masterGain;
 				gainNode.gain.cancelScheduledValues(context.currentTime);
 				gainNode.gain.setValueAtTime(gainNode.gain.value, context.currentTime);
 				gainNode.gain.linearRampToValueAtTime( 0, context.currentTime + parseFloat(release.val()));
@@ -123,6 +123,12 @@ function saveState() {
     if (!supportsLocalStorage()) { return false; }
     localStorage["synth.sesh.in.progress"] = seshInProgress;
     localStorage["masteroctave"] = $('#masteroctave').val();
+    console.log($('input select'));
+    $('input select').each(function(){
+    	console.log(localStorage);
+    	localStorage[$(this).attr('identifier')] = $(this).val();
+    });
+    
     return true;
 }
 
@@ -132,7 +138,29 @@ function loadState() {
 	document.getElementById("masteroctave").value = parseInt(localStorage["masteroctave"]);
 }
 
+//function to create control panels - number is how many panels there are
+function createOscControlPanels(number) {
+	var oscControlPanel = $('.osc');
+	var oscControlPanelWrapper = $('.controlpanelwrapper');
+	
+	for (var i = 0; i < number; i++) {
+		var el = oscControlPanel.clone();
+		el.show();
+		el.attr('oscnum', i);
+		el.find('input, select').each(function() {
+			$(this).attr('identifier', $(this).attr('class')+el.attr('oscnum'));
+		});
+		el.find('h2').text('Oscillator ' + (i + 1));
+		oscControlPanelWrapper.append(el);
+	}
+	oscControlPanel.remove();
+
+} 
+
 $(function(){
+
+	createOscControlPanels( 2 );
+	
 	loadState();
 
 	//add audio properties to drum pad
@@ -163,7 +191,7 @@ $(function(){
 		current++;
 	});
 
-	//event listener for change in octave recalculates frequencies
+	//event listener for change octave - recalculates frequencies
 	$('#masteroctave').on('input', function() {
 		var octave = $(this).val();
 		var currentCounter = $(this).val()*12;
@@ -172,8 +200,11 @@ $(function(){
 			$(this).data('frequency', currentCounter);
 			addSynthProperties(this);
 			currentCounter++;
-			saveState();
 		});
+	});
+
+	$('input').on('input', function() {
+			saveState();
 	});
 
 
