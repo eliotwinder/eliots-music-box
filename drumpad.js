@@ -133,6 +133,8 @@ function loadState() {
 }
 
 $(function(){
+	loadState();
+
 	//add audio properties to drum pad
 	$('#sp div').each(function() {
 		addAudioProperties(this);
@@ -150,8 +152,9 @@ $(function(){
 		keyToCharCode.push(keyboardStrokes[i].charCodeAt(0)-32);
 	}
 	
-	var current = 0;
+	var current = 0 + 12 * parseFloat(document.getElementById('masteroctave').value);
 
+	//assign frequency to keys
 	$('.key').each(function() {
 		this.frequency = calculateFrequency(current, 130.81);
 		$(this).data("frequency", current);
@@ -248,6 +251,5 @@ $(function(){
 		$(this).removeClass('pressedwhite pressedblack')
 		this.stopPiano();
 	});
-	loadState();
 });
 
