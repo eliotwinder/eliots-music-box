@@ -152,11 +152,11 @@ $(function(){
 		keyToCharCode.push(keyboardStrokes[i].charCodeAt(0)-32);
 	}
 	
-	var current = 0 + 12 * parseFloat(document.getElementById('masteroctave').value);
+	var current = 0;
 
 	//assign frequency to keys
 	$('.key').each(function() {
-		this.frequency = calculateFrequency(current, 130.81);
+		this.frequency = calculateFrequency(current + 12 * parseFloat(document.getElementById('masteroctave').value), 130.81);
 		$(this).data("frequency", current);
 		addSynthProperties(this);
 		$(this).attr('id', 'keynumber'+keyToCharCode[current]);
