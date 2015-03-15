@@ -122,11 +122,12 @@ function supportsLocalStorage() {
 function saveState() {
     if (!supportsLocalStorage()) { return false; }
     localStorage["synth.sesh.in.progress"] = seshInProgress;
-    localStorage["masteroctave"] = $('#masteroctave').val();
-    console.log($('input'));
     $(':input').each(function(){
-    	localStorage[$(this).attr('identifier')] = $(this).val();
-    	console.log(localStorage);
+    	if($(this).attr('type') === 'checkbox') {	
+    		localStorage[$(this).data('identifier')] = $(this).prop('checked');
+    	} else {
+    		localStorage[$(this).data('identifier')] = $(this).val();
+    	}
     });
     
     return true;
@@ -135,10 +136,28 @@ function saveState() {
 //load function
 function loadState() {
 	if (!supportsLocalStorage()) { return false; }
-	document.getElementById("masteroctave").value = parseInt(localStorage["masteroctave"]);
+	if (!localStorage["synth.sesh.in.progress"]) { return false; }
+	
+	$('#masteroctave').val( parseInt(localStorage["masteroctave"]));
+
+	 $(':input').each(function(){
+	 	if (localStorage[$(this).data('identifier')] === 'true' || localStorage[$(this).data('identifier')] === 'false' ) {
+    		
+
+
+	 		//onoff boxes not working	
+
+
+    		console.log(localStorage[$(this).data('identifier')]);
+    		$(this).prop( 'checked', localStorage[$(this).data('identifier')])	;
+    		console.log($(this).prop( 'checked'));	
+    	} else {
+    		$(this).val( localStorage[$(this).data('identifier')]);
+    	}
+    });
 }
 
-//function to create control panels - number is how many panels there are
+//function to create control panels - number is how many panels we want
 function createOscControlPanels(number) {
 	var oscControlPanel = $('.osc');
 	var oscControlPanelWrapper = $('.controlpanelwrapper');
@@ -203,7 +222,7 @@ $(function(){
 		});
 	});
 
-	$('input').on('input', function() {
+	$(':input').on('input', function() {
 			saveState();
 	});
 
