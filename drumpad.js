@@ -54,8 +54,8 @@ function addSynthProperties(object){
 			var onoff = el.find('.onoff');
 			var waveform = el.find('.waveform option:selected');
 			var gain = el.find('.gain');
-			var attack = el.find('.attack');
-			var mastervolume = $('#mastercontrol .gain');
+			var gainAttack = el.find('.attack');
+			var masterVolume = $('#mastercontrol .gain');
 			var masterAttack = $('#mastercontrol .attack'); 
 			if(onoff.prop('checked') == true) {
 				this.counter = 0;
@@ -66,22 +66,33 @@ function addSynthProperties(object){
 			  	var gainNodeMaster = context.createGain();
 			  	gainNodeMaster.connect(context.destination);
 			  	
+			  	//keeps track of which oscillators are active
 			  	note[$(this).attr('oscnum')] = {
 			  		osc: osc1,
 			  		gainNode: gainNode1,
 			  		masterGain: gainNodeMaster
 			  	};
 			  	
+			  	//sets waveform based on dropdown
 			  	osc1.type = waveform.text();
+
+			  	//connect oscillator to gain node to master
 			  	gainNode1.connect(gainNodeMaster);
 			  	osc1.connect(gainNode1);
-				//set volume to zero to add attack
-				gainNode1.gain.setValueAtTime(0,context.currentTime);
-				//attack envelope - 1st arg is target volume for top of attack (from oscillator), 2nd arg is time 
-					gainNode1.gain.linearRampToValueAtTime( 1, context.currentTime + parseFloat(attack.val()));
-				//attack for gainNodeMaster
-				gainNodeMaster.gain.setValueAtTime(0,context.currentTime);
-				gainNodeMaster.gain.linearRampToValueAtTime( gain.val(), context.currentTime + parseFloat(masterAttack.val()));
+
+			  	function ads( attribute, level, attack, decay, sustain) {
+				  	//set envelope to zero to add attack
+					attribute.setValueAtTime(0,context.currentTime);
+					//attack envelope - 1st arg is target volume for top of attack (from oscillator), 2nd arg is time 
+					attribute.linearRampToValueAtTime( level, context.currentTime + parseFloat(attack));
+					//decay	
+					attribute.linearRampToValueAtTime( sustain, context.currentTime + parseFloat(decay));	
+			  	}
+
+			  	ads( gainNode1.gain, gain.val(), gainAttack.val() )
+				//ads( gainNodeMaster.gain, )
+				ads( gainNodeMaster.gain, masterVolume.val(), masterAttack.val() )	
+				
 				osc1.frequency.value = object.frequency;
 				osc1.start(0);
 			}
@@ -137,17 +148,14 @@ function saveState() {
 function loadState() {
 	if (!supportsLocalStorage()) { return false; }
 	if (!localStorage["synth.sesh.in.progress"]) { return false; }
-	
-	$('#masteroctave').val( parseInt(localStorage["masteroctave"]));
 
-	 $(':input').each(function(){
+	//event listener to save statee whenever and input is changed
+	$(':input').each(function(){
+		//check if it is a checkbox
 	 	if (localStorage[$(this).data('identifier')] === 'true' || localStorage[$(this).data('identifier')] === 'false' ) {
-	 		//onoff boxes not working
-	 		console.log('before');	
-    		console.log(localStorage[$(this).data('identifier')]);
-    		$(this).prop( 'checked', localStorage[$(this).data('identifier')] != 'false')	;
-    		console.log($(this).prop( 'checked'));	
+    		$(this).prop( 'checked', localStorage[$(this).data('identifier')] != 'false');	
     	} else {
+    		//set value of the input
     		$(this).val( localStorage[$(this).data('identifier')]);
     	}
     });
@@ -218,7 +226,8 @@ $(function(){
 		});
 	});
 
-	$(':input, :checkbox').on('input', function() {
+	//save state when inputs are changed
+	$(':input').change(function() {
 			saveState();
 	});
 
