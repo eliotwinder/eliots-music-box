@@ -123,8 +123,8 @@ function saveState() {
     if (!supportsLocalStorage()) { return false; }
     localStorage["synth.sesh.in.progress"] = seshInProgress;
     $(':input').each(function(){
-    	if($(this).attr('type') === 'checkbox') {	
-    		localStorage[$(this).data('identifier')] = $(this).prop('checked');
+    	if($(this).prop('type') === 'checkbox') {	
+    		localStorage[$(this).data('identifier')] = $(this).is(':checked');
     	} else {
     		localStorage[$(this).data('identifier')] = $(this).val();
     	}
@@ -142,14 +142,10 @@ function loadState() {
 
 	 $(':input').each(function(){
 	 	if (localStorage[$(this).data('identifier')] === 'true' || localStorage[$(this).data('identifier')] === 'false' ) {
-    		
-
-
-	 		//onoff boxes not working	
-
-
+	 		//onoff boxes not working
+	 		console.log('before');	
     		console.log(localStorage[$(this).data('identifier')]);
-    		$(this).prop( 'checked', localStorage[$(this).data('identifier')])	;
+    		$(this).prop( 'checked', localStorage[$(this).data('identifier')] != 'false')	;
     		console.log($(this).prop( 'checked'));	
     	} else {
     		$(this).val( localStorage[$(this).data('identifier')]);
@@ -222,7 +218,7 @@ $(function(){
 		});
 	});
 
-	$(':input').on('input', function() {
+	$(':input, :checkbox').on('input', function() {
 			saveState();
 	});
 
