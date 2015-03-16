@@ -54,11 +54,28 @@ function addSynthProperties(object){
 			var onoff = el.find('.onoff');
 			var waveform = el.find('.waveform option:selected');
 			var gain = el.find('.gain');
-			var gainAttack = el.find('.attack');
-			var masterVolume = $('#mastercontrol .gain');
-			var masterAttack = $('#mastercontrol .attack'); 
+			var gainAttack = el.find('.volattack');
+			var gainSustain = el.find('.volsustain');
+			var gainDecay = el.find('.voldecay')
+			var gainRelease = el.find('.volrelease')
+			var masterVolume = $('#mastercontrol .volgain');
+			var masterVolAttack = $('#mastercontrol .volattack');
+			var masterVolDecay = $ ('#mastercontrol .voldecay')
+			var masterVolSustain = $('#mastercontrol .volsustain');
+			var masterVolRelease = $('#mastercontrol .volrelease'); 
+			
+			//attack decay sustain function 
+			function ads( attribute, level, attack, decay, sustain) {
+				  	//set envelope to zero to add attack
+					attribute.setValueAtTime(0,context.currentTime);
+					//attack envelope - 1st arg is target volume for top of attack (from oscillator), 2nd arg is time 
+					attribute.linearRampToValueAtTime( parseFloat(level), context.currentTime + parseFloat(attack));
+					//decay	
+					attribute.linearRampToValueAtTime( parseFloat(sustain), context.currentTime + parseFloat(decay));	
+			  	}
+
 			if(onoff.prop('checked') == true) {
-				this.counter = 0;
+				// commenting this out cause i'm not sure if it's used this.counter = 0;
 				var osc1 = context.createOscillator();
 			  	//this channel's gain node
 			  	var gainNode1 = context.createGain();
@@ -80,18 +97,9 @@ function addSynthProperties(object){
 			  	gainNode1.connect(gainNodeMaster);
 			  	osc1.connect(gainNode1);
 
-			  	function ads( attribute, level, attack, decay, sustain) {
-				  	//set envelope to zero to add attack
-					attribute.setValueAtTime(0,context.currentTime);
-					//attack envelope - 1st arg is target volume for top of attack (from oscillator), 2nd arg is time 
-					attribute.linearRampToValueAtTime( level, context.currentTime + parseFloat(attack));
-					//decay	
-					attribute.linearRampToValueAtTime( sustain, context.currentTime + parseFloat(decay));	
-			  	}
-
-			  	ads( gainNode1.gain, gain.val(), gainAttack.val() )
+			  	ads( gainNode1.gain, gain.val(), gainAttack.val(), gainDecay.val(), gainSustain.val())
 				//ads( gainNodeMaster.gain, )
-				ads( gainNodeMaster.gain, masterVolume.val(), masterAttack.val() )	
+				ads( gainNodeMaster.gain, masterVolume.val(), masterVolAttack.val(), masterVolDecay.val(), masterVolSustain.val() )	
 				
 				osc1.frequency.value = object.frequency;
 				osc1.start(0);
@@ -102,18 +110,20 @@ function addSynthProperties(object){
 	object.stopPiano = function () {
 		$('.osc').each(function() {
 			var el = $(this);
-			var release = el.find('.release');
+			var volumeRelease = el.find('.volrelease');
 			var masterRelease = $('#mastercontrol .release');
 			if(note[$(this).attr('oscnum')]){
 				var osc = note[$(this).attr('oscnum')].osc;	
 				var gainNode = note[$(this).attr('oscnum')].gainNode;
 				var masterGain = note[$(this).attr('oscnum')].masterGain;
-				gainNode.gain.cancelScheduledValues(context.currentTime);
-				gainNode.gain.setValueAtTime(gainNode.gain.value, context.currentTime);
-				gainNode.gain.linearRampToValueAtTime( 0, context.currentTime + parseFloat(release.val()));
-				masterGain.gain.cancelScheduledValues(context.currentTime);
-				masterGain.gain.setValueAtTime(masterGain.gain.value, context.currentTime);
-				masterGain.gain.linearRampToValueAtTime(0, context.currentTime+parseFloat(masterRelease.val()));
+
+				function release(attribute, release) {
+					attribute.cancelScheduledValues(context.currentTime);
+					attribute.setValueAtTime(attribute.value, context.currentTime);
+					attribute.linearRampToValueAtTime( 0, context.currentTime + parseFloat(release));
+				}
+				console.log()
+				release( gainNode.gain, volumeRelease.val());
 			}
 		});
 
