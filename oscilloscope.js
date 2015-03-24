@@ -5,7 +5,6 @@ var canvasHeight = 150;
 function oscilloscope(){
 	//set up canvas
 	var canvas = document.getElementById("scope");
-	console.log($('#scope'));
 	window.canvasCtx = scope.getContext("2d");	
 
 	
@@ -27,10 +26,27 @@ function oscilloscope(){
 		analyser.getByteTimeDomainData(timeDomain);
 		
 		//draw a bg
-		canvasCtx.fillStyle = 'rgb(100, 200, 200)';
+		canvasCtx.fillStyle = 'rgb(200, 200, 200)';
 			canvasCtx.fillRect(0, 0, canvasWidth, canvasHeight);
 
-		//////Gain wave
+		//////Frequency wave
+		barWidth = (canvasWidth / bufferLength );
+		var barHeight;
+		var x = 0;
+
+		for(var i = 0; i < bufferLength; i++) {
+	        barHeight = freqDomain[i]/2;
+
+	        canvasCtx.fillStyle = 'rgb(' + (100 + x)  + ',50,50)';
+	        canvasCtx.fillRect(x,canvasHeight-barHeight,barWidth,barHeight);
+
+	        x += barWidth;
+	      }
+
+	  	canvasCtx.lineTo(canvas.width, canvas.height/2);
+	  	canvasCtx.stroke();
+
+	  	//////Gain wave
 		
 		//set the line for the wave
 		canvasCtx.lineWidth = 2;
@@ -43,33 +59,6 @@ function oscilloscope(){
 
 	    for(var i = 0; i < bufferLength; i++) {
 	        var v = timeDomain[i] / 128.0;
-	        var y = v * canvasHeight/2;
-
-	        if(i === 0) {
-	          canvasCtx.moveTo(x, y);
-	        } else {
-	          canvasCtx.lineTo(x, y);
-	        }
-
-	        x += sliceWidth;
-	    }
-
-	  	canvasCtx.lineTo(canvas.width, canvas.height/2);
-	  	canvasCtx.stroke();
-
-		//////Frequency wave
-
-		//set the line for the wave
-		canvasCtx.lineWidth = 2;
-			canvasCtx.strokeStyle = 'rgb(181, 77, 255)';
-	      	canvasCtx.beginPath();
-
-	    //figure out how wide each slice should be by dividing the width of the canvas by sample rate
-	    var sliceWidth = canvasWidth * 1 / bufferLength;
-	    var x = 0;
-
-	    for(var i = 0; i < bufferLength; i++) {
-	        var v = freqDomain[i] / 128.0;
 	        var y = v * canvasHeight/2;
 
 	        if(i === 0) {

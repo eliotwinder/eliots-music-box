@@ -48,6 +48,7 @@ function addAudioProperties(object) {
 
 //set up ginal gain node for oscillator
 var analyser = context.createAnalyser();
+analyser.fftSize = 256;
 var destGain = context.createGain();
 destGain.connect(analyser);
 analyser.connect(context.destination);
