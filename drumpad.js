@@ -1,12 +1,16 @@
 window.AudioContext = window.AudioContext || window.webkitAudioContext;
 var context = new window.AudioContext();
-var frequencies = [16.35, 17.32, 18.35, 19.45, 20.6, 21.83, 23.12, 24.5, 25.96, 27.5, 29.14, 30.87, 32.7, 34.65, 36.71, 38.89, 41.2, 43.65, 46.25, 49, 51.91, 55, 58.27, 61.74, 65.41, 69.3, 73.42, 77.78, 82.41, 87.31, 92.5, 98, 103.83, 110, 116.54, 123.47, 130.81, 138.59, 146.83, 155.56, 164.81, 174.61, 185, 196, 207.65, 220, 233.08, 246.94, 261.63, 277.18, 293.66, 311.13, 329.63, 349.23, 369.99, 392, 415.3, 440, 466.16, 493.88, 523.25, 554.37, 587.33, 622.25, 659.25, 698.46, 739.99, 783.99, 830.61, 880, 932.33, 987.77, 1046.5, 1108.73, 1174.66, 1244.51, 1318.51, 1396.91, 1479.98, 1567.98, 1661.22, 1760, 1864.66, 1975.53, 2093, 2217.46, 2349.32, 2489.02, 2637.02, 2793.83, 2959.96, 3135.96, 3322.44, 3520, 3729.31, 3951.07, 4186.01, 4434.92, 4698.63, 4978.03, 5274.04, 5587.65, 5919.91, 6271.93, 6644.88, 7040, 7458.62, 7902.13];
 
 //calculate the frequency of a note based on start (hz); pitch is halfsteps away from a4
 function calculateFrequency(pitch, start){
 	var noteFrequency = start*Math.pow(Math.pow(2,1/12),pitch);
 	return noteFrequency;
 }
+
+//calculate frequency n steps away from a given frequency - i'm using 130.81 (c3) as constant here, but it could be anything
+function pitchChange( n, freq, anchor ) {
+
+} 
 
 //create buffer for drum pad
 function loadAudio(object, url) {
@@ -42,6 +46,12 @@ function addAudioProperties(object) {
 //variables for local storage
 	var seshInProgress = true;
 
+//set up ginal gain node for oscillator
+var analyser = context.createAnalyser();
+var destGain = context.createGain();
+destGain.connect(analyser);
+analyser.connect(context.destination);
+
 //add synth to the keyboard
 function addSynthProperties(object){
 	//object to hold active oscillators and gain
@@ -53,6 +63,7 @@ function addSynthProperties(object){
 			var el = $(this);
 			var onoff = el.find('.onoff');
 			var waveform = el.find('.waveform option:selected');
+			var octave =el.find('.octave');			
 			var gain = el.find('.gain');
 			var gainAttack = el.find('.volattack');
 			var gainSustain = el.find('.volsustain');
@@ -66,43 +77,48 @@ function addSynthProperties(object){
 			
 			//attack decay sustain function 
 			function ads( attribute, level, attack, decay, sustain) {
+				  	attribute.cancelScheduledValues(context.currentTime);
 				  	//set envelope to zero to add attack
 					attribute.setValueAtTime(0,context.currentTime);
+					
 					//attack envelope - 1st arg is target volume for top of attack (from oscillator), 2nd arg is time 
 					attribute.linearRampToValueAtTime( parseFloat(level), context.currentTime + parseFloat(attack));
+					
 					//decay	
-					attribute.linearRampToValueAtTime( parseFloat(sustain), context.currentTime + parseFloat(decay));	
+					attribute.linearRampToValueAtTime( parseFloat(sustain)*parseFloat(level), context.currentTime + parseFloat(decay) + parseFloat(attack));	
 			  	}
 
+			  	
+
 			if(onoff.prop('checked') == true) {
-				// commenting this out cause i'm not sure if it's used this.counter = 0;
-				var osc1 = context.createOscillator();
+				var osc = context.createOscillator();
 			  	//this channel's gain node
 			  	var gainNode1 = context.createGain();
 			  	//pseudo master gain node: this gain node will be the same in all oscillators, mimicking a master channel, but allows us to start a new note
 			  	var gainNodeMaster = context.createGain();
-			  	gainNodeMaster.connect(context.destination);
+			  	gainNodeMaster.connect(destGain);
 			  	
 			  	//keeps track of which oscillators are active
 			  	note[$(this).attr('oscnum')] = {
-			  		osc: osc1,
+			  		osc: osc,
 			  		gainNode: gainNode1,
 			  		masterGain: gainNodeMaster
 			  	};
 			  	
 			  	//sets waveform based on dropdown
-			  	osc1.type = waveform.text();
+			  	osc.type = waveform.text();
 
 			  	//connect oscillator to gain node to master
 			  	gainNode1.connect(gainNodeMaster);
-			  	osc1.connect(gainNode1);
+			  	osc.connect(gainNode1);
 
-			  	ads( gainNode1.gain, gain.val(), gainAttack.val(), gainDecay.val(), gainSustain.val())
+			  	ads( gainNode1.gain, gain.val(), gainAttack.val(), gainDecay.val(), gainSustain.val());
 				//ads( gainNodeMaster.gain, )
-				ads( gainNodeMaster.gain, masterVolume.val(), masterVolAttack.val(), masterVolDecay.val(), masterVolSustain.val() )	
+				ads( gainNodeMaster.gain, masterVolume.val()*gain.val(), masterVolAttack.val(), masterVolDecay.val(), masterVolSustain.val() );	
 				
-				osc1.frequency.value = object.frequency;
-				osc1.start(0);
+				//frequency is the note + octave for master and octave for this osc
+				osc.frequency.value = object.frequency;
+				osc.start(0);
 			}
 		});
 	}		
@@ -115,14 +131,13 @@ function addSynthProperties(object){
 			if(note[$(this).attr('oscnum')]){
 				var osc = note[$(this).attr('oscnum')].osc;	
 				var gainNode = note[$(this).attr('oscnum')].gainNode;
-				var masterGain = note[$(this).attr('oscnum')].masterGain;
-
+				var masterGain = note[$(this).attr('oscnum')].masterGain;		
 				function release(attribute, release) {
 					attribute.cancelScheduledValues(context.currentTime);
 					attribute.setValueAtTime(attribute.value, context.currentTime);
 					attribute.linearRampToValueAtTime( 0, context.currentTime + parseFloat(release));
 				}
-				console.log()
+				
 				release( gainNode.gain, volumeRelease.val());
 			}
 		});
@@ -137,6 +152,17 @@ function supportsLocalStorage() {
   } catch (e) {
     return false;
   }
+
+  //event listener to save statee whenever and input is changed
+	$(':input').each(function(){
+		//check if it is a checkbox
+	 	if (localStorage[$(this).data('identifier')] === 'true' || localStorage[$(this).data('identifier')] === 'false' ) {
+    		$(this).prop( 'checked', localStorage[$(this).data('identifier')] != 'false');	
+    	} else {
+    		//set value of the input
+    		$(this).val( localStorage[$(this).data('identifier')]);
+    	}
+    });
 }
 
 //save function
@@ -159,7 +185,7 @@ function loadState() {
 	if (!supportsLocalStorage()) { return false; }
 	if (!localStorage["synth.sesh.in.progress"]) { return false; }
 
-	//event listener to save statee whenever and input is changed
+	//cycles through inputs and assigns saved values
 	$(':input').each(function(){
 		//check if it is a checkbox
 	 	if (localStorage[$(this).data('identifier')] === 'true' || localStorage[$(this).data('identifier')] === 'false' ) {
@@ -178,7 +204,8 @@ function createOscControlPanels(number) {
 	
 	for (var i = 0; i < number; i++) {
 		var el = oscControlPanel.clone();
-		el.show();
+		el.css('display', 'inline-block');
+	
 		el.attr('oscnum', i);
 		el.find('input, select').each(function() {
 			$(this).data('identifier', $(this).data('identifier') + $(this).parent().attr('oscnum'));
@@ -191,8 +218,10 @@ function createOscControlPanels(number) {
 } 
 
 $(function(){
+	//create an array with frequencies starting from the bottom note
+	var numberOfOscillators =2;
 
-	createOscControlPanels( 2 );
+	createOscControlPanels( numberOfOscillators );
 	
 	loadState();
 
@@ -217,20 +246,23 @@ $(function(){
 
 	//assign frequency to keys
 	$('.key').each(function() {
-		this.frequency = calculateFrequency(current + 12 * parseFloat(document.getElementById('masteroctave').value), 130.81);
+		this.frequency = calculateFrequency( current + 12 * parseFloat(document.getElementById('masteroctave').value), 130.81);
 		$(this).data("frequency", current);
 		addSynthProperties(this);
-		$(this).attr('id', 'keynumber'+keyToCharCode[current]);
+		$(this).prop('id', 'keynumber'+keyToCharCode[current]);
 		current++;
 	});
+
 
 	//event listener for change octave - recalculates frequencies
 	$('#masteroctave').on('input', function() {
 		var octave = $(this).val();
 		var currentCounter = $(this).val()*12;
 		$('.key').each(function() {
-			this.frequency = calculateFrequency(currentCounter, 130.81);
-			$(this).data('frequency', currentCounter);
+			for (var i = 0; i < numberOfOscillators; i++){
+				this.frequency = calculateFrequency(currentCounter, 130.81);
+				$(this).data('frequency', currentCounter);
+			}
 			addSynthProperties(this);
 			currentCounter++;
 		});
@@ -316,5 +348,8 @@ $(function(){
 		$(this).removeClass('pressedwhite pressedblack')
 		this.stopPiano();
 	});
+
+	//draw the oscilloscope
+	oscilloscope();
 });
 
